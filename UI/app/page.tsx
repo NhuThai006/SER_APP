@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import AudioUploadCard from '@/components/AudioUploadCard';
+import AudioUploadCard, { AudioSession } from '@/components/AudioUploadCard';
 import ResultsDashboard from '@/components/ResultsDashboard';
 import { useEmotionModel } from '@/lib/useEmotionModel';
 
@@ -14,9 +14,9 @@ export interface AnalysisResult {
 }
 
 export default function Home() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>('');
-  const [duration, setDuration] = useState<number>(0);
+  const [sessions, setSessions] = useState<AudioSession[]>([]);
+  const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([]);
+  
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>('');
@@ -24,15 +24,66 @@ export default function Home() {
   const { isModelLoaded, modelError, predict } = useEmotionModel();
 
   const handleFileSelect = (file: File, dur: number) => {
-    setSelectedFile(file);
-    setFileName(file.name);
-    setDuration(dur);
+    const newSession: AudioSession = {
+      id: Date.now().toString() + Math.random().toString(36).substring(7),
+      file,
+      fileName: file.name,
+      duration: dur,
+      audioUrl: URL.createObjectURL(file),
+    };
+    
+    setSessions((prev) => [...prev, newSession]);
+    // Không tự động chọn file mới theo yêu cầu
     setError('');
   };
 
+  const handleSessionSelect = (id: string) => {
+    if (selectedSessionIds.includes(id)) {
+      // Đã chọn rồi thì click lại sẽ bỏ chọn
+      setSelectedSessionIds(prev => prev.filter(sessionId => sessionId !== id));
+    } else {
+      // Chưa chọn
+      if (selectedSessionIds.length >= 1) {
+        alert("You can only select 1 file to analyze at a time.");
+      } else {
+        setSelectedSessionIds([id]);
+      }
+    }
+  };
+
+  const handleFileNameChange = (id: string, newName: string) => {
+    setSessions((prev) =>
+      prev.map((session) =>
+        session.id === id ? { ...session, fileName: newName } : session
+      )
+    );
+  };
+
+  const handleClearFile = (id: string) => {
+    setSessions((prev) => {
+      const sessionToRemove = prev.find((s) => s.id === id);
+      if (sessionToRemove?.audioUrl) {
+        URL.revokeObjectURL(sessionToRemove.audioUrl);
+      }
+      return prev.filter((s) => s.id !== id);
+    });
+    
+    if (selectedSessionIds.includes(id)) {
+      setSelectedSessionIds(prev => prev.filter(sessionId => sessionId !== id));
+      setAnalysisResult(null);
+    }
+  };
+
   const handleAnalyze = async () => {
-    if (!selectedFile) {
-      setError('Please select or record an audio file');
+    if (selectedSessionIds.length === 0) {
+      alert("Please select an audio file to analyze.");
+      return;
+    }
+
+    const sessionToAnalyze = sessions.find((s) => s.id === selectedSessionIds[0]);
+    
+    if (!sessionToAnalyze) {
+      alert("Please select an audio file to analyze.");
       return;
     }
 
@@ -45,7 +96,7 @@ export default function Home() {
     setError('');
 
     try {
-      const result = await predict(selectedFile);
+      const result = await predict(sessionToAnalyze.file);
       
       setAnalysisResult({
         emotion: result.dominant_emotion.charAt(0).toUpperCase() + result.dominant_emotion.slice(1),
@@ -92,12 +143,15 @@ export default function Home() {
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <AudioUploadCard
-            fileName={fileName}
-            duration={duration}
+            sessions={sessions}
+            selectedSessionIds={selectedSessionIds}
             isAnalyzing={isAnalyzing}
             error={error || modelError}
             onFileSelect={handleFileSelect}
             onAnalyze={handleAnalyze}
+            onFileNameChange={handleFileNameChange}
+            onClearFile={handleClearFile}
+            onSessionSelect={handleSessionSelect}
           />
           <ResultsDashboard result={analysisResult} isAnalyzing={isAnalyzing} />
         </div>

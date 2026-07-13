@@ -12,14 +12,14 @@ const emotionConfig: {
   happy: { barColor: 'bg-amber-500', textColor: 'text-amber-600' },
   sad: { barColor: 'bg-blue-500', textColor: 'text-blue-600' },
   angry: { barColor: 'bg-red-500', textColor: 'text-red-600' },
-  fearful: { barColor: 'bg-purple-500', textColor: 'text-purple-600' },
+  fear: { barColor: 'bg-purple-500', textColor: 'text-purple-600' },
   disgust: { barColor: 'bg-green-600', textColor: 'text-green-700' },
   surprised: { barColor: 'bg-pink-500', textColor: 'text-pink-600' },
   neutral: { barColor: 'bg-gray-400', textColor: 'text-gray-600' },
   calm: { barColor: 'bg-teal-600', textColor: 'text-teal-700' },
 };
 
-const emotionOrder = ['happy', 'sad', 'angry', 'fearful', 'disgust', 'surprised', 'neutral', 'calm'];
+const emotionOrder = ['happy', 'sad', 'angry', 'fear', 'disgust', 'surprised', 'neutral', 'calm'];
 
 export default function EmotionBars({ emotions }: EmotionBarsProps) {
   const sortedEmotions = emotionOrder

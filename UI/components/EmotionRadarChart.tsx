@@ -13,7 +13,7 @@ const emotionColors: { [key: string]: string } = {
   happy: '#f59e0b',
   sad: '#3b82f6',
   angry: '#ef4444',
-  fearful: '#a855f7',
+  fear: '#a855f7',
   disgust: '#22c55e',
   surprised: '#ec4899',
   neutral: '#9ca3af',

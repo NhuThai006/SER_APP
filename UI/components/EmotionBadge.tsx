@@ -11,7 +11,7 @@ const emotionConfig: {
   happy: { bg: 'bg-amber-500', text: 'text-white', icon: '😊' },
   sad: { bg: 'bg-blue-500', text: 'text-white', icon: '😢' },
   angry: { bg: 'bg-red-500', text: 'text-white', icon: '😠' },
-  fearful: { bg: 'bg-purple-500', text: 'text-white', icon: '😨' },
+  fear: { bg: 'bg-purple-500', text: 'text-white', icon: '😨' },
   disgust: { bg: 'bg-green-600', text: 'text-white', icon: '🤢' },
   surprised: { bg: 'bg-pink-500', text: 'text-white', icon: '😲' },
   neutral: { bg: 'bg-gray-500', text: 'text-white', icon: '😐' },
